@@ -1,26 +1,128 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: #113E55;
+  --color-secondary: #1E40AF;
+  --color-accent: #CEE5ED;
+  --color-orange: #F46036;
+  --color-teal: #1B998B;
+  --color-grey: #9B9797;
+  --color-tertiary: #F46036;
+  --color-light-orange: #FFF8F5;
+  --color-light-teal: #F4FFFE;
+  --color-light-grey: #F7F9F9;
+  --color-dark-teal: #167a6f;
+  --color-body: #FBFEFF;
+  --color-input-border: #D1D5DB;
+  --color-danger: #ED0808;
+  --color-black: #04121A;
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@utility font-inter-extralight {
+  font-family: var(--font-inter);
+  font-weight: 100;
+}
+
+@utility font-inter-light {
+  font-family: var(--font-inter);
+  font-weight: 300;
+}
+
+@utility font-inter-regular {
+  font-family: var(--font-inter);
+  font-weight: 400;
+}
+
+@utility font-inter-medium {
+  font-family: var(--font-inter);
+  font-weight: 500;
+}
+
+@utility font-inter-medium-italic {
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-style: italic;
+}
+
+@utility font-inter-semibold {
+  font-family: var(--font-inter);
+  font-weight: 600;
+}
+
+@utility font-ubuntu-extralight {
+  font-family: var(--font-ubuntu-sans);
+  font-weight: 100;
+}
+
+@utility font-ubuntu-light {
+  font-family: var(--font-ubuntu-sans);
+  font-weight: 300;
+}
+
+@utility font-ubuntu-regular {
+  font-family: var(--font-ubuntu-sans);
+  font-weight: 400;
+}
+
+@utility font-ubuntu-medium {
+  font-family: var(--font-ubuntu-sans);
+  font-weight: 500;
+}
+
+@utility font-ubuntu-semibold {
+  font-family: var(--font-ubuntu-sans);
+  font-weight: 600;
+}
+
+@utility font-ubuntu-bold {
+  font-family: var(--font-ubuntu-sans);
+  font-weight: 700;
+}
+
+@utility font-ubuntu-extrabold {
+  font-family: var(--font-ubuntu-sans);
+  font-weight: 800;
+}
+
+@utility font-ubuntu-italic {
+  font-family: var(--font-ubuntu-sans);
+  font-weight: 400;
+  font-style: italic;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Landing page custom styles (ported from Expo global.css)         */
+/* ------------------------------------------------------------------ */
+
+.hero-section-image {
+  width: 100%;
+  overflow: hidden;
+}
+
+.hero-txt {
+  font-size: 2.25rem;
+  font-weight: 600;
+  font-family: var(--font-inter);
+  color: #ffffff;
+  line-height: 1.25;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .hero-txt {
+    font-size: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-txt {
+    font-size: 3.75rem;
+  }
 }
