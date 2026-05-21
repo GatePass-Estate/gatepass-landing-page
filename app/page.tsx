@@ -9,15 +9,42 @@ import icons from '@/lib/icons';
 import { useModal } from '@/components/ModalContext';
 
 /* ------------------------------------------------------------------ */
+/*  Who We Are carousel data                                            */
+/* ------------------------------------------------------------------ */
+const whoWeAreItems = [
+	{
+		heading: 'Our Mission',
+		body: 'At GatePass, we are committed to redefining access management through cutting-edge AI technology. Our team of innovators, security experts, and developers work tirelessly to create solutions that prioritize safety, efficiency, and user experience. We believe that managing access should be seamless, intelligent, and empowering for all stakeholders.',
+	},
+	{
+		heading: 'Our Vision',
+		body: 'To become the global standard for intelligent access management — where every building, estate, and facility operates with zero friction, total transparency, and complete trust. We envision a world where security and convenience coexist naturally, powered by AI that learns, adapts, and protects.',
+	},
+	{
+		heading: 'Our Approach',
+		body: 'We combine deep domain expertise in physical security with modern software engineering. Our approach is user-centric: we listen to facility managers, residents, and security teams, then build technology that solves real problems. Continuous iteration, rigorous testing, and a privacy-first mindset guide everything we ship.',
+	},
+];
+
+/* ------------------------------------------------------------------ */
 /*  Main page                                                           */
 /* ------------------------------------------------------------------ */
 export default function LandingPage() {
 	const { open } = useModal();
 	const [heroHeight, setHeroHeight] = useState('86vh');
+	const [activeWhoIndex, setActiveWhoIndex] = useState(0);
+	const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
 	useEffect(() => {
 		document.title = 'GatePass — Smarter Access. Safer Spaces.';
 		setHeroHeight(`${window.innerHeight * 0.86}px`);
+	}, []);
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setActiveWhoIndex((prev) => (prev + 1) % whoWeAreItems.length);
+		}, 5000);
+		return () => clearInterval(interval);
 	}, []);
 
 	return (
@@ -57,13 +84,13 @@ export default function LandingPage() {
 			<Section className="py-20 md:py-28" style={{ background: C.white }}>
 				<div className="flex flex-col md:flex-row gap-8 md:gap-16">
 					<div className="md:w-1/2">
-						<SectionHeading className="!font-inter-regular text-primary text-center md:text-left">
+						<SectionHeading className="font-inter-regular! text-primary text-center md:text-left">
 							About <output className="font-inter-semibold">GatePass</output>
 						</SectionHeading>
 					</div>
 					<div className="md:w-2/3 flex flex-col items-center md:items-start">
 						<BodyText className="mb-6 text-center md:text-left">Gatepass transforms how access works bringing intelligence, speed, and real-time awareness into a single seamless system. No bottlenecks. No guesswork. Just total control.</BodyText>
-						<Link href="/" className="inline-flex items-center gap-2 text-primary font-inter-medium hover:gap-3 transition-all">
+						<Link href="/about" className="inline-flex items-center gap-2 text-primary font-inter-medium hover:gap-3 transition-all">
 							Explore More <img src={icons.rightLink} alt="" style={{ width: 25, height: 25, objectFit: 'contain' }} />
 						</Link>
 					</div>
@@ -74,27 +101,47 @@ export default function LandingPage() {
 			{/*  WHO WE ARE                                               */}
 			{/* ========================================================= */}
 			<div className="relative overflow-hidden" style={{ backgroundColor: C.dark }}>
-				<img
-					src={images.gatePassMobile}
-					alt=""
-					className="absolute object-cover"
-					style={{ top: 120, left: 220 }}
-				/>
+				<img src={images.gatePassMobile} alt="" className="absolute object-cover md:left-56 md:top-32 bottom-0" />
 				<Section className="py-20 md:py-28 relative z-10">
-					<div className="max-w-3xl mx-auto text-center">
-						<div className="p-7 bg-slate-100/10 rounded-2xl mb-5">
+					<div className="max-w-3xl mx-auto text-center flex flex-col">
+						<div
+							className="p-7 bg-slate-100/10 rounded-2xl mb-5 order-2 md:order-1 transition-all duration-500"
+							onTouchStart={(e) => setTouchStartX(e.changedTouches[0].screenX)}
+							onTouchEnd={(e) => {
+								if (touchStartX === null) return;
+								const diff = touchStartX - e.changedTouches[0].screenX;
+								if (diff > 50) {
+									setActiveWhoIndex((prev) => (prev + 1) % whoWeAreItems.length);
+								} else if (diff < -50) {
+									setActiveWhoIndex((prev) => (prev - 1 + whoWeAreItems.length) % whoWeAreItems.length);
+								}
+								setTouchStartX(null);
+							}}
+						>
 							<SectionHeading light className="mb-6">
-								Who We Are
+								{whoWeAreItems[activeWhoIndex].heading}
 							</SectionHeading>
 							<BodyText light className="mb-10">
-								At GatePass, we are committed to redefining access management through cutting-edge AI technology. Our team of innovators, security experts, and developers work tirelessly to create solutions that prioritize safety, efficiency, and user experience. We believe that
-								managing access should be seamless, intelligent, and empowering for all stakeholders.
+								{whoWeAreItems[activeWhoIndex].body}
 							</BodyText>
 						</div>
-						<div className="flex flex-wrap justify-center gap-4 mb-12">
-							<PillButton variant="outline">Our Mission</PillButton>
-							<PillButton variant="outline">Our Vision</PillButton>
-							<PillButton variant="outline">Our Approach</PillButton>
+						<div className="flex flex-wrap justify-center gap-4 mb-6 order-1 md:order-2">
+							{whoWeAreItems.map((item, i) => (
+								<PillButton
+									key={item.heading}
+									variant={activeWhoIndex === i ? 'active' : 'outline'}
+									onPress={() => setActiveWhoIndex(i)}
+									className={activeWhoIndex === i ? '' : 'hidden md:inline-flex'}
+								>
+									{item.heading}
+								</PillButton>
+							))}
+						</div>
+						{/* Mobile dot pagination */}
+						<div className="flex md:hidden justify-center gap-2 order-3">
+							{whoWeAreItems.map((_, i) => (
+								<button key={i} onClick={() => setActiveWhoIndex(i)} className={`h-2 rounded-full transition-all ${i === activeWhoIndex ? 'bg-accent w-4' : 'bg-white/30 w-2'}`} aria-label={`Go to slide ${i + 1}`} />
+							))}
 						</div>
 					</div>
 				</Section>
@@ -104,49 +151,49 @@ export default function LandingPage() {
 			{/*  EXPLORE SMART MANAGEMENT ACCESS                          */}
 			{/* ========================================================= */}
 			<Section className="py-20 md:py-28" style={{ background: C.body }}>
-				<div className="text-center mb-20">
-					<SectionHeading className="font-inter-regular text-3xl md:text-5xl text-primary">Explore Smart Management Access</SectionHeading>
+				<div className="text-center mb-10">
+					<SectionHeading className="font-inter-regular text-2xl md:text-5xl text-primary">Explore Smart Management Access</SectionHeading>
 				</div>
 
 				{/* Feature 1 — AI-Powered Security Intelligence */}
 				<div className="flex flex-col md:flex-row items-center gap-12 md:gap-16 mb-20">
-					<div className="flex-1 order-2 md:order-1">
-						<div className="flex items-center gap-2">
+					<div className="flex-1 order-1 md:order-2">
+						<div className="flex flex-col md:flex-row items-center gap-2">
 							<div className="w-12 h-12 rounded-full flex items-center justify-center mb-5 bg-teal">
 								<span className="font-inter-semibold text-white">1</span>
 							</div>
-							<h3 className="text-2xl font-inter-semibold text-primary mb-4">AI-Powered Security Intelligence</h3>
+							<h3 className="text-xl md:text-2xl font-inter-semibold text-primary mb-4">AI-Powered Security Intelligence</h3>
 						</div>
 						<BodyText className="mb-6">
 							GatePass leverages advanced AI to elevate access control beyond basic monitoring. By continuously analyzing entry patterns and behaviors, the system detects anomalies, flags suspicious activity, and adapts over time to improve accuracy. This intelligent layer ensures
 							faster response, reduced human error, and a more proactive approach to security management.
 						</BodyText>
-						<RoundedButton onPress={open} icon={icons.rightLink} fill={true}>
+						<RoundedButton className="mx-auto md:mx-0" onPress={open} icon={icons.rightLink} fill={true}>
 							Stay Secured
 						</RoundedButton>
 					</div>
-					<div className="flex flex-1 order-1 md:order-2 justify-end">
+					<div className="flex flex-1 order-1 justify-end">
 						<img src={images.screenshotOne} alt="AI-Powered Security" />
 					</div>
 				</div>
 
 				{/* Feature 2 — Instant Broadcast Communication */}
 				<div className="flex flex-col md:flex-row items-center gap-12 md:gap-16 mb-20">
-					<div className="flex-1 flex justify-center">
+					<div className="flex-1 flex order-2 md:order-1 justify-center">
 						<img src={images.screenshotTwo} alt="Broadcast Communication" />
 					</div>
 					<div className="flex-1">
-						<div className="flex items-center gap-2">
+						<div className="flex flex-col md:flex-row items-center gap-2">
 							<div className="w-12 h-12 rounded-full flex items-center justify-center mb-5 bg-teal">
 								<span className="font-inter-semibold text-white">2</span>
 							</div>
-							<h3 className="text-2xl font-inter-semibold text-primary mb-4">Instant Broadcast Communication</h3>
+							<h3 className="text-xl md:text-2xl font-inter-semibold text-primary mb-4">Instant Broadcast Communication</h3>
 						</div>
 						<BodyText className="mb-6">
 							Communicate with every resident or user in seconds. GatePass enables administrators to send real-time, one-click broadcast messages for announcements, emergencies, or important updates. It eliminates communication gaps, ensuring that everyone stays informed, aligned, and
 							responsive when it matters most.
 						</BodyText>
-						<RoundedButton onPress={open} icon={icons.rightLink} fill={true}>
+						<RoundedButton className="mx-auto md:mx-0" onPress={open} icon={icons.rightLink} fill={true}>
 							Send instant Memo
 						</RoundedButton>
 					</div>
@@ -154,22 +201,22 @@ export default function LandingPage() {
 
 				{/* Feature 3 — Smart Digital Logbook */}
 				<div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">
-					<div className="flex-1 order-2 md:order-1">
-						<div className="flex items-center gap-2">
+					<div className="flex-1 order-1 md:order-2">
+						<div className="flex flex-col md:flex-row items-center gap-2">
 							<div className="w-12 h-12 rounded-full flex items-center justify-center mb-5 bg-teal">
 								<span className="font-inter-semibold text-white">3</span>
 							</div>
-							<h3 className="text-2xl font-inter-semibold text-primary mb-4">Smart Digital Logbook</h3>
+							<h3 className="text-xl md:text-2xl font-inter-semibold text-primary mb-4">Smart Digital Logbook</h3>
 						</div>
 						<BodyText className="mb-6">
 							Say goodbye to paper logbooks. GatePass keeps a clean, real-time record of all entries and exits in one place. Whether it&rsquo;s for an estate or a corporate space, you get clear visibility, easy tracking, and access to past records whenever you need them.
 						</BodyText>
-						<RoundedButton onPress={open} icon={icons.rightLink} fill={true}>
+						<RoundedButton className="mx-auto md:mx-0" onPress={open} icon={icons.rightLink} fill={true}>
 							Go Digital
 						</RoundedButton>
 					</div>
-					<div className="flex flex-1 order-1 md:order-2 flex justify-end">
-						<img src={images.screenshotThree} alt="Smart Digital Logbook" />
+					<div className="flex flex-1 order-1 justify-end">
+						<img src={images.screenshotThree} alt="Smart Digital Logbook" className="relative -right-20 md:right-0" />
 					</div>
 				</div>
 			</Section>
@@ -197,13 +244,13 @@ export default function LandingPage() {
 			{/* ========================================================= */}
 			{/*  CTA RING                                                 */}
 			{/* ========================================================= */}
-			<Section className="py-24 md:py-60 overflow-hidden" style={{ background: C.dark }}>
-				<div className="flex flex-col items-center justify-center text-center overflow-hidden relative">
-					<h3 className="text-xl md:text-4xl font-inter-medium text-white z-[2] max-w-4xl leading-8">
+			<Section className="py-24 md:py-60 mb-20" style={{ background: C.dark }}>
+				<div className="flex flex-col items-center justify-center text-center overflow-hidden">
+					<h3 className="text-xl md:text-4xl font-inter-medium text-white z-2 max-w-4xl leading-8">
 						With GatePass, you don&apos;t just manage access you take control, stay secure,
 						<output className="text-[#153866]">and move smarter in a system that evolves with you.</output>
 					</h3>
-					<img src={images.circleImage} alt="" className="mix-blend-screen absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden z-0" />
+					<img src={images.circleImage} alt="" className="mix-blend-screen absolute" />
 				</div>
 			</Section>
 		</LandingLayout>

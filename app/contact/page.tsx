@@ -116,18 +116,10 @@ export default function ContactPage() {
 					</div>
 					<TextArea placeholder="Your message ..." value={message} onChange={setMessage} rows={8} />
 
-					{status !== 'idle' && statusMsg && (
-						<div className={`text-sm font-inter-medium ${status === 'success' ? 'text-green-400' : status === 'error' ? 'text-red-400' : 'text-white'}`}>
-							{statusMsg}
-						</div>
-					)}
+					{status !== 'idle' && statusMsg && <div className={`text-sm font-inter-medium ${status === 'success' ? 'text-green-400' : status === 'error' ? 'text-red-400' : 'text-white'}`}>{statusMsg}</div>}
 
 					<div className="flex justify-end">
-						<button
-							type="submit"
-							disabled={status === 'loading'}
-							className="rounded-xl px-8 py-2 font-inter-medium border transition-all flex items-center gap-1 bg-accent hover:bg-white/5 text-primary hover:text-white hover:border-white disabled:opacity-50"
-						>
+						<button type="submit" disabled={status === 'loading'} className="rounded-xl px-8 py-2 font-inter-medium border transition-all flex items-center gap-1 bg-accent hover:bg-white/5 text-primary hover:text-white hover:border-white disabled:opacity-50">
 							{status === 'loading' ? 'Sending...' : 'Send Message'}
 						</button>
 					</div>

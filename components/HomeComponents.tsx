@@ -8,28 +8,17 @@ import { ReactNode } from 'react';
 
 export const Section = ({ children, className = '', style }: { children: ReactNode; className?: string; style?: React.CSSProperties }) => (
 	<div className={`w-full ${className}`} style={style}>
-		<div className="max-w-[90rem] mx-auto px-6 md:px-12 h-full">{children}</div>
+		<div className="max-w-360 mx-auto px-6 md:px-12 h-full">{children}</div>
 	</div>
 );
 
-export const PillButton = ({
-	children,
-	variant = 'primary',
-	onPress,
-	className = '',
-	icon,
-}: {
-	children: ReactNode;
-	variant?: 'primary' | 'outline' | 'outlineDark';
-	onPress?: () => void;
-	className?: string;
-	icon?: ReactNode;
-}) => {
-	const base = 'inline-flex items-center gap-2 rounded-full px-6 py-3 font-ubuntu-medium text-sm transition-all duration-200 cursor-pointer';
+export const PillButton = ({ children, variant = 'primary', onPress, className = '', icon }: { children: ReactNode; variant?: 'primary' | 'outline' | 'outlineDark' | 'active'; onPress?: () => void; className?: string; icon?: ReactNode }) => {
+	const base = 'hidden md:inline-flex items-center gap-2 rounded-2xl px-6 py-3 font-ubuntu-medium text-sm transition-all duration-200 cursor-pointer';
 	const styles = {
 		primary: 'bg-white text-[#0A1628] hover:bg-gray-100',
 		outline: 'border border-white/30 text-white hover:bg-white/10',
 		outlineDark: 'border border-[#0A1628]/30 text-[#0A1628] hover:bg-[#0A1628]/5',
+		active: 'border border-white/30 text-primary hover:text-accent !font-ubuntu-bold hover:bg-white/10 bg-accent inline-flex',
 	};
 	return (
 		<button onClick={onPress} className={`${base} ${styles[variant]} ${className}`}>
@@ -39,24 +28,8 @@ export const PillButton = ({
 	);
 };
 
-export const RoundedButton = ({
-	children,
-	onPress,
-	className = '',
-	icon,
-	iconWidth = 30,
-	iconHeight = 30,
-	fill = false,
-}: {
-	children: ReactNode;
-	onPress?: () => void;
-	className?: string;
-	icon?: string;
-	iconWidth?: number;
-	iconHeight?: number;
-	fill?: boolean;
-}) => {
-	const base = `rounded-2xl px-5 py-2 font-inter-medium border transition-all flex items-center gap-1 ${fill ? 'bg-primary hover:bg-primary/90 text-white' : 'bg-accent hover:bg-white/5 text-primary hover:text-white hover:border-white'}`;
+export const RoundedButton = ({ children, onPress, className = '', icon, iconWidth = 30, iconHeight = 30, fill = false }: { children: ReactNode; onPress?: () => void; className?: string; icon?: string; iconWidth?: number; iconHeight?: number; fill?: boolean }) => {
+	const base = `rounded-2xl px-6 py-3 md:px-5 md:py-2 font-inter-medium border transition-all flex items-center gap-1 ${fill ? 'bg-primary hover:bg-primary/90 text-white' : 'bg-accent hover:bg-white/5 text-primary hover:text-white hover:border-white'}`;
 	return (
 		<button onClick={onPress} className={`${base} ${className}`}>
 			{children}
@@ -76,15 +49,9 @@ export const RoundedButton = ({
 	);
 };
 
-export const SectionHeading = ({ children, className = '', light = false }: { children: ReactNode; className?: string; light?: boolean }) => (
-	<h2 className={`text-3xl md:text-4xl font-inter-bold leading-tight ${light ? 'text-white' : 'text-[#0A1628]'} ${className}`}>
-		{children}
-	</h2>
-);
+export const SectionHeading = ({ children, className = '', light = false }: { children: ReactNode; className?: string; light?: boolean }) => <h2 className={`text-3xl md:text-4xl font-inter-bold leading-tight ${light ? 'text-white' : 'text-[#0A1628]'} ${className}`}>{children}</h2>;
 
-export const BodyText = ({ children, className = '', light = false }: { children: ReactNode; className?: string; light?: boolean }) => (
-	<p className={`text-base md:text-lg leading-relaxed ${light ? 'text-gray-300' : 'text-gray-600'} ${className}`}>{children}</p>
-);
+export const BodyText = ({ children, className = '', light = false }: { children: ReactNode; className?: string; light?: boolean }) => <p className={`text-base md:text-lg leading-relaxed ${light ? 'text-gray-300' : 'text-gray-600'} ${className}`}>{children}</p>;
 
 /* ------------------------------------------------------------------ */
 /*  Phone mockup                                                       */
@@ -104,9 +71,9 @@ export const PhoneMockup = ({ children, className = '' }: { children: ReactNode;
 /*  Feature card (Why Choose Us)                                        */
 /* ------------------------------------------------------------------ */
 export const WhyCard = ({ icon, title, desc, className }: { icon: ReactNode; title: string; desc: string; className?: string }) => (
-	<div className={`p-6 rounded-2xl border-[0.5px] transition-all duration-200 hover:-translate-y-1 relative overflow-hidden bg-[#FBFEFF]/3 border-accent hover:bg-[#FBFEFF]/5 ${className}`}>
+	<div className={`p-6 rounded-2xl border-[0.5px] transition-all duration-200 hover:-translate-y-1 relative overflow-hidden bg-body/3 border-accent hover:bg-body/5 ${className}`}>
 		<div className="flex items-start gap-4 pointer-events-none">
-			<div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5 bg-tertiary">
+			<div className="w-10 h-10 rounded-full hidden md:flex items-center justify-center shrink-0 mt-0.5 bg-tertiary">
 				<span className="font-inter-semibold text-white">{icon}</span>
 			</div>
 			<div>
