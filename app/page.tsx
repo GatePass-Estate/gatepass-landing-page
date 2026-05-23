@@ -164,17 +164,9 @@ export default function LandingPage() {
 								setTimerReset((v) => v + 1);
 							}}
 						>
-							<div
-								ref={trackRef}
-								className={`flex ${isTransitioning ? 'transition-transform duration-500 ease-out' : ''}`}
-								style={{ width: `${whoWeAreItems.length * 100}%` }}
-							>
+							<div ref={trackRef} className={`flex ${isTransitioning ? 'transition-transform duration-500 ease-out' : ''}`} style={{ width: `${whoWeAreItems.length * 100}%` }}>
 								{whoWeAreItems.map((item) => (
-									<div
-										key={item.heading}
-										className="flex-shrink-0 p-7"
-										style={{ width: `${100 / whoWeAreItems.length}%` }}
-									>
+									<div key={item.heading} className="shrink-0 p-7" style={{ width: `${100 / whoWeAreItems.length}%` }}>
 										<SectionHeading light className="mb-6">
 											{item.title}
 										</SectionHeading>
@@ -187,7 +179,15 @@ export default function LandingPage() {
 						</div>
 						<div className="flex flex-wrap justify-center gap-4 mb-6 order-1 md:order-2">
 							{whoWeAreItems.map((item, i) => (
-								<PillButton key={item.heading} variant={activeWhoIndex === i ? 'active' : 'outline'} onPress={() => { setActiveWhoIndex(i); setTimerReset((v) => v + 1); }} className={activeWhoIndex === i ? '' : 'hidden md:inline-flex'}>
+								<PillButton
+									key={item.heading}
+									variant={activeWhoIndex === i ? 'active' : 'outline'}
+									onPress={() => {
+										setActiveWhoIndex(i);
+										setTimerReset((v) => v + 1);
+									}}
+									className={activeWhoIndex === i ? '' : 'hidden md:inline-flex'}
+								>
 									{item.heading}
 								</PillButton>
 							))}
@@ -195,7 +195,15 @@ export default function LandingPage() {
 						{/* Mobile dot pagination */}
 						<div className="flex md:hidden justify-center gap-2 order-3">
 							{whoWeAreItems.map((_, i) => (
-								<button key={i} onClick={() => { setActiveWhoIndex(i); setTimerReset((v) => v + 1); }} className={`h-2 rounded-full transition-all ${i === activeWhoIndex ? 'bg-accent w-4' : 'bg-white/30 w-2'}`} aria-label={`Go to slide ${i + 1}`} />
+								<button
+									key={i}
+									onClick={() => {
+										setActiveWhoIndex(i);
+										setTimerReset((v) => v + 1);
+									}}
+									className={`h-2 rounded-full transition-all ${i === activeWhoIndex ? 'bg-accent w-4' : 'bg-white/30 w-2'}`}
+									aria-label={`Go to slide ${i + 1}`}
+								/>
 							))}
 						</div>
 					</div>
