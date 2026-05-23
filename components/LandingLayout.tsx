@@ -168,14 +168,14 @@ const Footer = () => {
 						</button>
 						<div className="flex items-center gap-3 ml-2">
 							{[
-								{ icon: icons.linkedIn, label: 'LinkedIn' },
-								{ icon: icons.emailIcon, label: 'Email' },
-								{ icon: icons.xIcon, label: 'Twitter' },
-								{ icon: icons.instagram, label: 'Instagram' },
+								{ icon: icons.linkedIn, label: 'LinkedIn', href: process.env.NEXT_PUBLIC_LINKEDIN_URL || '#' },
+								{ icon: icons.emailIcon, label: 'Email', href: process.env.NEXT_PUBLIC_EMAIL_URL || 'mailto:info@gatepassng.com' },
+								{ icon: icons.xIcon, label: 'Twitter', href: process.env.NEXT_PUBLIC_TWITTER_URL || '#' },
+								{ icon: icons.instagram, label: 'Instagram', href: process.env.NEXT_PUBLIC_INSTAGRAM_URL || '#' },
 							].map((s) => (
-								<button key={s.label} className="w-9 h-9 rounded-full flex items-center justify-center hover:border-white/30 hover:bg-white/5 transition-all">
+								<a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full flex items-center justify-center hover:border-white/30 hover:bg-white/5 transition-all">
 									<img src={s.icon} alt={s.label} className="w-6 h-6 object-contain cursor-pointer" />
-								</button>
+								</a>
 							))}
 						</div>
 					</div>
@@ -184,14 +184,14 @@ const Footer = () => {
 					<div className="flex md:hidden flex-col items-center gap-4 w-full">
 						<div className="flex items-center justify-center gap-3 border-b border-white w-full pb-6 mb-2">
 							{[
-								{ icon: icons.linkedIn, label: 'LinkedIn' },
-								{ icon: icons.emailIcon, label: 'Email' },
-								{ icon: icons.xIcon, label: 'Twitter' },
-								{ icon: icons.instagram, label: 'Instagram' },
+								{ icon: icons.linkedIn, label: 'LinkedIn', href: process.env.NEXT_PUBLIC_LINKEDIN_URL || '#' },
+								{ icon: icons.emailIcon, label: 'Email', href: process.env.NEXT_PUBLIC_EMAIL_URL || 'mailto:info@gatepassng.com' },
+								{ icon: icons.xIcon, label: 'Twitter', href: process.env.NEXT_PUBLIC_TWITTER_URL || '#' },
+								{ icon: icons.instagram, label: 'Instagram', href: process.env.NEXT_PUBLIC_INSTAGRAM_URL || '#' },
 							].map((s) => (
-								<button key={s.label} className="w-9 h-9 rounded-full flex items-center justify-center hover:border-white/30 hover:bg-white/5 transition-all">
+								<a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full flex items-center justify-center hover:border-white/30 hover:bg-white/5 transition-all">
 									<img src={s.icon} alt={s.label} className="w-6 h-6 object-contain cursor-pointer" />
-								</button>
+								</a>
 							))}
 						</div>
 						<p className="text-white text-xs font-inter-light">&copy; 2026 GatePass. All rights reserved.</p>
