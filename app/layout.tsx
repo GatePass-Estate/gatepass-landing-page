@@ -27,6 +27,10 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" className={`${inter.variable} ${ubuntuSans.variable} antialiased`} suppressHydrationWarning>
+			<head>
+				<link rel="icon" href="/favicon.ico" />
+				<link rel="icon" type="image/png" href="/logo.png" />
+			</head>
 			<body className="min-h-full flex flex-col">
 				<ModalProvider>{children}</ModalProvider>
 			</body>

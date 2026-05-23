@@ -174,7 +174,7 @@ const Footer = () => {
 								{ icon: icons.instagram, label: 'Instagram' },
 							].map((s) => (
 								<button key={s.label} className="w-9 h-9 rounded-full flex items-center justify-center hover:border-white/30 hover:bg-white/5 transition-all">
-									<img src={s.icon} alt={s.label} className="w-6 h-6 object-contain" />
+									<img src={s.icon} alt={s.label} className="w-6 h-6 object-contain cursor-pointer" />
 								</button>
 							))}
 						</div>
@@ -190,7 +190,7 @@ const Footer = () => {
 								{ icon: icons.instagram, label: 'Instagram' },
 							].map((s) => (
 								<button key={s.label} className="w-9 h-9 rounded-full flex items-center justify-center hover:border-white/30 hover:bg-white/5 transition-all">
-									<img src={s.icon} alt={s.label} className="w-6 h-6 object-contain" />
+									<img src={s.icon} alt={s.label} className="w-6 h-6 object-contain cursor-pointer" />
 								</button>
 							))}
 						</div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import LandingLayout, { LP as C } from '@/components/LandingLayout';
 import { BodyText, PillButton, RoundedButton, Section, SectionHeading, WhyCard } from '@/components/HomeComponents';
@@ -14,15 +14,18 @@ import { useModal } from '@/components/ModalContext';
 const whoWeAreItems = [
 	{
 		heading: 'Our Mission',
-		body: 'At GatePass, we are committed to redefining access management through cutting-edge AI technology. Our team of innovators, security experts, and developers work tirelessly to create solutions that prioritize safety, efficiency, and user experience. We believe that managing access should be seamless, intelligent, and empowering for all stakeholders.',
+		title: 'Who We Are',
+		body: 'GatePass is a technology company focused on transforming how physical spaces are secured and managed. We combine intelligent automation with advanced AI to create safer, smarter environments for residential estates, corporate buildings, and facilities.',
 	},
 	{
-		heading: 'Our Vision',
-		body: 'To become the global standard for intelligent access management — where every building, estate, and facility operates with zero friction, total transparency, and complete trust. We envision a world where security and convenience coexist naturally, powered by AI that learns, adapts, and protects.',
+		heading: 'Our Values',
+		title: 'What Makes Us',
+		body: 'GatePass is a technology company focused on transforming how physical spaces are secured and managed. We combine intelligent automation with advanced AI to create safer, smarter environments for residential estates, corporate buildings, and facilities.',
 	},
 	{
 		heading: 'Our Approach',
-		body: 'We combine deep domain expertise in physical security with modern software engineering. Our approach is user-centric: we listen to facility managers, residents, and security teams, then build technology that solves real problems. Continuous iteration, rigorous testing, and a privacy-first mindset guide everything we ship.',
+		title: 'How we do it',
+		body: 'GatePass is a technology company focused on transforming how physical spaces are secured and managed. We combine intelligent automation with advanced AI to create safer, smarter environments for residential estates, corporate buildings, and facilities.',
 	},
 ];
 
@@ -33,7 +36,13 @@ export default function LandingPage() {
 	const { open } = useModal();
 	const [heroHeight, setHeroHeight] = useState('86vh');
 	const [activeWhoIndex, setActiveWhoIndex] = useState(0);
-	const [touchStartX, setTouchStartX] = useState<number | null>(null);
+	const [isTransitioning, setIsTransitioning] = useState(true);
+	const [timerReset, setTimerReset] = useState(0);
+	const trackRef = useRef<HTMLDivElement>(null);
+	const isPausedRef = useRef(false);
+	const startXRef = useRef(0);
+	const currentXRef = useRef(0);
+	const isDraggingRef = useRef(false);
 
 	useEffect(() => {
 		document.title = 'GatePass — Smarter Access. Safer Spaces.';
@@ -42,10 +51,18 @@ export default function LandingPage() {
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			setActiveWhoIndex((prev) => (prev + 1) % whoWeAreItems.length);
+			if (!isPausedRef.current) {
+				setActiveWhoIndex((prev) => (prev + 1) % whoWeAreItems.length);
+			}
 		}, 5000);
 		return () => clearInterval(interval);
-	}, []);
+	}, [timerReset]);
+
+	useEffect(() => {
+		if (trackRef.current) {
+			trackRef.current.style.transform = `translateX(-${activeWhoIndex * (100 / whoWeAreItems.length)}%)`;
+		}
+	}, [activeWhoIndex, isTransitioning]);
 
 	return (
 		<LandingLayout>
@@ -105,34 +122,72 @@ export default function LandingPage() {
 				<Section className="py-20 md:py-28 relative z-10">
 					<div className="max-w-3xl mx-auto text-center flex flex-col">
 						<div
-							className="p-7 bg-slate-100/10 rounded-2xl mb-5 order-2 md:order-1 transition-all duration-500"
-							onTouchStart={(e) => setTouchStartX(e.changedTouches[0].screenX)}
-							onTouchEnd={(e) => {
-								if (touchStartX === null) return;
-								const diff = touchStartX - e.changedTouches[0].screenX;
-								if (diff > 50) {
-									setActiveWhoIndex((prev) => (prev + 1) % whoWeAreItems.length);
-								} else if (diff < -50) {
-									setActiveWhoIndex((prev) => (prev - 1 + whoWeAreItems.length) % whoWeAreItems.length);
+							className="overflow-hidden bg-slate-100/10 rounded-2xl mb-5 order-2 md:order-1"
+							style={{ touchAction: 'pan-y' }}
+							onTouchStart={(e) => {
+								isPausedRef.current = true;
+								isDraggingRef.current = true;
+								setIsTransitioning(false);
+								startXRef.current = e.touches[0].clientX;
+								currentXRef.current = e.touches[0].clientX;
+							}}
+							onTouchMove={(e) => {
+								if (!isDraggingRef.current || !trackRef.current) return;
+								currentXRef.current = e.touches[0].clientX;
+								const delta = currentXRef.current - startXRef.current;
+								const slideWidth = trackRef.current.parentElement!.offsetWidth;
+								const dragPercent = (delta / slideWidth) * 100;
+								trackRef.current.style.transform = `translateX(calc(-${activeWhoIndex * (100 / whoWeAreItems.length)}% + ${dragPercent}%))`;
+							}}
+							onTouchEnd={() => {
+								if (!isDraggingRef.current || !trackRef.current) return;
+								isDraggingRef.current = false;
+								isPausedRef.current = false;
+								setIsTransitioning(true);
+								const delta = currentXRef.current - startXRef.current;
+								const slideWidth = trackRef.current.parentElement!.offsetWidth;
+								const threshold = Math.max(50, slideWidth * 0.15);
+								let newIndex = activeWhoIndex;
+								if (delta < -threshold) {
+									newIndex = (activeWhoIndex + 1) % whoWeAreItems.length;
+								} else if (delta > threshold) {
+									newIndex = (activeWhoIndex - 1 + whoWeAreItems.length) % whoWeAreItems.length;
 								}
-								setTouchStartX(null);
+								setActiveWhoIndex(newIndex);
+								setTimerReset((v) => v + 1);
+							}}
+							onTouchCancel={() => {
+								if (!isDraggingRef.current) return;
+								isDraggingRef.current = false;
+								isPausedRef.current = false;
+								setIsTransitioning(true);
+								setTimerReset((v) => v + 1);
 							}}
 						>
-							<SectionHeading light className="mb-6">
-								{whoWeAreItems[activeWhoIndex].heading}
-							</SectionHeading>
-							<BodyText light className="mb-10">
-								{whoWeAreItems[activeWhoIndex].body}
-							</BodyText>
+							<div
+								ref={trackRef}
+								className={`flex ${isTransitioning ? 'transition-transform duration-500 ease-out' : ''}`}
+								style={{ width: `${whoWeAreItems.length * 100}%` }}
+							>
+								{whoWeAreItems.map((item) => (
+									<div
+										key={item.heading}
+										className="flex-shrink-0 p-7"
+										style={{ width: `${100 / whoWeAreItems.length}%` }}
+									>
+										<SectionHeading light className="mb-6">
+											{item.title}
+										</SectionHeading>
+										<BodyText light className="mb-10">
+											{item.body}
+										</BodyText>
+									</div>
+								))}
+							</div>
 						</div>
 						<div className="flex flex-wrap justify-center gap-4 mb-6 order-1 md:order-2">
 							{whoWeAreItems.map((item, i) => (
-								<PillButton
-									key={item.heading}
-									variant={activeWhoIndex === i ? 'active' : 'outline'}
-									onPress={() => setActiveWhoIndex(i)}
-									className={activeWhoIndex === i ? '' : 'hidden md:inline-flex'}
-								>
+								<PillButton key={item.heading} variant={activeWhoIndex === i ? 'active' : 'outline'} onPress={() => { setActiveWhoIndex(i); setTimerReset((v) => v + 1); }} className={activeWhoIndex === i ? '' : 'hidden md:inline-flex'}>
 									{item.heading}
 								</PillButton>
 							))}
@@ -140,7 +195,7 @@ export default function LandingPage() {
 						{/* Mobile dot pagination */}
 						<div className="flex md:hidden justify-center gap-2 order-3">
 							{whoWeAreItems.map((_, i) => (
-								<button key={i} onClick={() => setActiveWhoIndex(i)} className={`h-2 rounded-full transition-all ${i === activeWhoIndex ? 'bg-accent w-4' : 'bg-white/30 w-2'}`} aria-label={`Go to slide ${i + 1}`} />
+								<button key={i} onClick={() => { setActiveWhoIndex(i); setTimerReset((v) => v + 1); }} className={`h-2 rounded-full transition-all ${i === activeWhoIndex ? 'bg-accent w-4' : 'bg-white/30 w-2'}`} aria-label={`Go to slide ${i + 1}`} />
 							))}
 						</div>
 					</div>
@@ -224,33 +279,33 @@ export default function LandingPage() {
 			{/* ========================================================= */}
 			{/*  WHY CHOOSE US                                            */}
 			{/* ========================================================= */}
-			<Section className="py-20 md:py-36" style={{ background: C.dark }}>
+			<Section className="py-20 md:py-36 md:pb-10 z-50!">
 				<div className="text-center mb-16">
 					<SectionHeading light className="max-w-2xl mx-auto md:text-5xl font-inter-semibold">
 						Why Choose Us For <output className="font-inter-light">Your Smart Access Management</output>
 					</SectionHeading>
 				</div>
-				<div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-					<WhyCard icon={1} title="AI-Native, Not Just Digital" desc="Most systems digitize logs. GatePass understands them detecting anomalies and risks automatically." className="md:col-span-7" />
+				<div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 place-content-end">
+					<WhyCard icon={1} title="AI-Native, Not Just Digital" desc="Most systems digitize logs. GatePass understands them detecting anomalies and risks automatically." className="md:col-span-5 relative md:col-start-2 md:-top-10" />
 
-					<WhyCard icon={2} title="Proactive Security" desc="We don't just record incidents we help prevent them." className="md:col-span-5" />
+					<WhyCard icon={2} title="Proactive Security" desc="We don't just record incidents we help prevent them." className="md:col-span-5 md:col-end-12" />
 
-					<WhyCard icon={3} title="Intelligent Incident Summaries" desc="Instant, AI-generated summaries save hours of manual reporting." className="md:col-span-5" />
+					<WhyCard icon={3} title="Intelligent Incident Summaries" desc="Instant, AI-generated summaries save hours of manual reporting." className="md:col-span-6 relative md:-top-8 md:-left-8" />
 
-					<WhyCard icon={4} title="Seamless Integration" desc="From single estates to multi-location enterprises, GatePass scales effortlessly.Designed to fit into modern infrastructure and workflows without friction." className="md:col-span-7" />
+					<WhyCard icon={4} title="Seamless Integration" desc="From single estates to multi-location enterprises, GatePass scales effortlessly.Designed to fit into modern infrastructure and workflows without friction." className="md:col-end-13 md:col-start-7 md:-right-8" />
 				</div>
 			</Section>
 
 			{/* ========================================================= */}
 			{/*  CTA RING                                                 */}
 			{/* ========================================================= */}
-			<Section className="py-24 md:py-60 mb-20" style={{ background: C.dark }}>
+			<Section className="py-24 md:py-80 z-0 overflow-clip relative" style={{ background: C.dark }}>
 				<div className="flex flex-col items-center justify-center text-center overflow-hidden">
 					<h3 className="text-xl md:text-4xl font-inter-medium text-white z-2 max-w-4xl leading-8">
 						With GatePass, you don&apos;t just manage access you take control, stay secure,
 						<output className="text-[#153866]">and move smarter in a system that evolves with you.</output>
 					</h3>
-					<img src={images.circleImage} alt="" className="mix-blend-screen absolute" />
+					<img src={images.circleImage} alt="" className="absolute mix-blend-screen " style={{ zIndex: 0 }} />
 				</div>
 			</Section>
 		</LandingLayout>

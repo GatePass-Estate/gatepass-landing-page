@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import LandingLayout, { LP } from '@/components/LandingLayout';
 import { BodyText, Section, SectionHeading } from '@/components/HomeComponents';
@@ -11,9 +11,43 @@ import icons from '@/lib/icons';
 /*  Main page                                                             */
 /* ------------------------------------------------------------------ */
 export default function AboutPage() {
+	const [activeTab, setActiveTab] = useState(0);
+
 	useEffect(() => {
 		document.title = 'About Us — GatePass';
 	}, []);
+
+	const tabs = [
+		{
+			label: 'Our Goal',
+			image: images.fingerImage,
+			content: (
+				<>
+					We are committed to securing the future of real estate and corporate infrastructure. By integrating cutting-edge software with physical security protocols, we ensure that your space remains what it was always meant to be: <b className="italic">Secure, Private, and Welcoming.</b>
+				</>
+			),
+		},
+		{
+			label: 'How We Work',
+			image: images.fingerImage,
+			content: (
+				<>
+					GatePass leverages cloud-native architecture to sync residents and security in real time. Access begins with a host-initiated digital handshake. Requests are processed via high-speed caching, allowing millisecond validation at the gate. This proactive, zero-trust model replaces
+					slow, manual gatekeeping with instant, pre-verified entry.
+				</>
+			),
+		},
+		{
+			label: 'Need to get started?',
+			image: images.fingerImage,
+			content: (
+				<>
+					Our technical team provides custom deployments, including database configuration, staff training, and mobile rollout. We offer end-to-end onboarding tailored to your facility&apos;s specific needs. To modernize your perimeter or schedule a live demonstration of our AI-driven
+					dashboard, contact our architects via email or our official web portal.
+				</>
+			),
+		},
+	];
 
 	return (
 		<LandingLayout>
@@ -113,19 +147,20 @@ export default function AboutPage() {
 			<Section className="py-10 md:py-20" style={{ background: LP.dark }}>
 				<div className="flex flex-col md:flex-row gap-8 md:gap-10">
 					<div className="mt-5 flex md:flex-col text-sm md:text-lg! gap-4 justify-between md:justify-start">
-						<h3 className="mb-4 text-white cursor-pointer hover:text-white font-inter-medium">Our Goal</h3>
-						<h3 className="mb-4 text-[#D3D3D3]/50 cursor-pointer hover:text-white font-inter-medium">How We Work</h3>
-						<h3 className="mb-4 text-[#D3D3D3]/50 cursor-pointer hover:text-white font-inter-medium">Need to get started?</h3>
+						{tabs.map((tab, index) => (
+							<h3 key={index} onClick={() => setActiveTab(index)} className={`mb-4 cursor-pointer font-inter-medium transition-colors duration-300 ${activeTab === index ? 'text-white' : 'text-[#D3D3D3]/50 hover:text-white'}`}>
+								{tab.label}
+							</h3>
+						))}
 					</div>
 
 					<div className="rounded-2xl overflow-hidden flex-1 order-2 md:order-1">
-						<img src={images.fingerImage} alt="" style={{ width: '100%', height: 300, objectFit: 'cover' }} />
+						<img src={tabs[activeTab].image} alt="" style={{ width: '100%', height: 300, objectFit: 'cover' }} />
 					</div>
 
 					<div className="flex-1 md:mt-10 order-1">
-						<BodyText className="text-white/80 font-ubuntu-light">
-							We are committed to securing the future of real estate and corporate infrastructure. By integrating cutting-edge software with physical security protocols, we ensure that your space remains what it was always meant to be:{' '}
-							<b className="italic">Secure, Private, and Welcoming.</b>
+						<BodyText key={activeTab} className="text-white/80 font-ubuntu-light animate-fade-in">
+							{tabs[activeTab].content}
 						</BodyText>
 					</div>
 				</div>

@@ -71,7 +71,10 @@ export const PhoneMockup = ({ children, className = '' }: { children: ReactNode;
 /*  Feature card (Why Choose Us)                                        */
 /* ------------------------------------------------------------------ */
 export const WhyCard = ({ icon, title, desc, className }: { icon: ReactNode; title: string; desc: string; className?: string }) => (
-	<div className={`p-6 rounded-2xl border-[0.5px] transition-all duration-200 hover:-translate-y-1 relative overflow-hidden bg-body/3 border-accent hover:bg-body/5 ${className}`}>
+	<div
+		className={`p-6 rounded-2xl border-[0.5px] transition-all duration-200 hover:-translate-y-1 hover:scale-110 relative overflow-hidden bg-body/3 border-accent/30 
+	hover:bg-body/5 ${className}`}
+	>
 		<div className="flex items-start gap-4 pointer-events-none">
 			<div className="w-10 h-10 rounded-full hidden md:flex items-center justify-center shrink-0 mt-0.5 bg-tertiary">
 				<span className="font-inter-semibold text-white">{icon}</span>

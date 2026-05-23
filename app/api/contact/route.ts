@@ -7,6 +7,7 @@ import type { Transporter, SentMessageInfo } from 'nodemailer';
 interface ContactBody {
 	name: string;
 	email: string;
+	reason: string;
 	message: string;
 }
 
@@ -29,9 +30,89 @@ interface ContactErrorResponse {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
+ * Build a branded HTML email template for contact form submissions.
+ */
+function buildEmailTemplate(name: string, email: string, reason: string, message: string): string {
+	const safeName = escapeHtml(name);
+	const safeEmail = escapeHtml(email);
+	const safeReason = escapeHtml(reason);
+	const safeMessage = escapeHtml(message).replace(/\n/g, '<br/>');
+
+	return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Contact Form Submission</title>
+</head>
+<body style="margin:0;padding:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td align="center" style="padding:48px 16px;">
+        <table width="100%" max-width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background-color:#0F1F33;border-radius:16px;overflow:hidden;border:1px solid rgba(206,229,237,0.12);">
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#113E55 0%,#0A1628 100%);padding:40px 32px 32px;text-align:center;border-bottom:1px solid rgba(206,229,237,0.12);">
+              <div style="font-size:24px;font-weight:700;color:#CEE5ED;letter-spacing:0.5px;margin-bottom:8px;">GatePass</div>
+              <div style="font-size:13px;color:#9FB8C6;letter-spacing:1.5px;text-transform:uppercase;">New Contact Submission</div>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="padding-bottom:20px;">
+                    <div style="font-size:12px;color:#9FB8C6;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Name</div>
+                    <div style="font-size:16px;color:#FFFFFF;font-weight:500;">${safeName}</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-bottom:20px;">
+                    <div style="font-size:12px;color:#9FB8C6;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Email</div>
+                    <div style="font-size:16px;color:#FFFFFF;font-weight:500;">${safeEmail}</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-bottom:20px;">
+                    <div style="font-size:12px;color:#9FB8C6;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Reason</div>
+                    <span style="display:inline-block;background-color:rgba(206,229,237,0.10);color:#CEE5ED;font-size:13px;font-weight:600;padding:6px 14px;border-radius:9999px;border:1px solid rgba(206,229,237,0.20);">${safeReason}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-size:12px;color:#9FB8C6;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Message</div>
+                    <div style="background-color:rgba(206,229,237,0.05);border:1px solid rgba(206,229,237,0.10);border-radius:12px;padding:20px;font-size:15px;color:#E2EAF0;line-height:1.6;">${safeMessage}</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding:24px 32px;text-align:center;border-top:1px solid rgba(206,229,237,0.08);">
+              <div style="font-size:12px;color:#6B8A9A;">This message was sent via the GatePass contact form.</div>
+            </td>
+          </tr>
+        </table>
+        <table width="100%" max-width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
+          <tr>
+            <td style="padding-top:16px;text-align:center;">
+              <div style="font-size:11px;color:#4A6270;">GatePass &copy; ${new Date().getFullYear()}</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+/**
  * POST /api/contact
  *
- * Accepts a JSON body with name, email, and message,
+ * Accepts a JSON body with name, email, reason, and message,
  * validates the fields, then sends an email via SMTP using nodemailer.
  */
 export async function POST(request: Request): Promise<Response> {
@@ -39,7 +120,7 @@ export async function POST(request: Request): Promise<Response> {
 		// 1. Parse and narrow the JSON body
 		const rawBody = await request.json();
 
-		const { name, email, message } = rawBody as Partial<ContactBody>;
+		const { name, email, reason, message } = rawBody as Partial<ContactBody>;
 
 		// 2. Validate presence
 		if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -48,6 +129,10 @@ export async function POST(request: Request): Promise<Response> {
 
 		if (!email || typeof email !== 'string' || email.trim().length === 0) {
 			return Response.json({ success: false, error: 'Email is required.' } satisfies ContactErrorResponse, { status: 400 });
+		}
+
+		if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
+			return Response.json({ success: false, error: 'Reason is required.' } satisfies ContactErrorResponse, { status: 400 });
 		}
 
 		if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -61,11 +146,15 @@ export async function POST(request: Request): Promise<Response> {
 		}
 
 		// 4. Read SMTP configuration from environment variables
-		const smtpHost = process.env.SMTP_HOST;
-		const smtpPort = process.env.SMTP_PORT;
-		const smtpUser = process.env.SMTP_USER;
-		const smtpPass = process.env.SMTP_PASS;
+		const smtpHost = process.env.MAIL_SERVER;
+		const smtpPort = process.env.MAIL_PORT;
+		const smtpUser = process.env.MAIL_USERNAME;
+		const smtpPass = process.env.MAIL_PASSWORD;
+		const from = process.env.MAIL_FROM;
+		const fromName = process.env.MAIL_FROM_NAME;
 		const contactRecipient = process.env.CONTACT_RECIPIENT;
+		const mailSslTls = process.env.MAIL_SSL_TLS;
+		const mailStartTls = process.env.MAIL_STARTTLS;
 
 		// Ensure all required env vars are present
 		if (!smtpHost || !smtpPort || !smtpUser || !smtpPass || !contactRecipient) {
@@ -75,16 +164,18 @@ export async function POST(request: Request): Promise<Response> {
 
 		const portNum = parseInt(smtpPort, 10);
 		if (Number.isNaN(portNum)) {
-			console.error(`Invalid SMTP_PORT value: ${smtpPort}`);
+			console.error(`Invalid MAIL_PORT value: ${smtpPort}`);
 			return Response.json({ success: false, error: 'Server configuration error. Please try again later.' } satisfies ContactErrorResponse, { status: 500 });
 		}
 
 		// 5. Create nodemailer transporter
+		const secure = mailSslTls ? mailSslTls === 'true' : portNum === 465;
+		const requireTLS = mailStartTls ? mailStartTls === 'true' : portNum === 587;
 		const transporter: Transporter = createTransport({
 			host: smtpHost,
 			port: portNum,
-			// Use TLS when port is 465, otherwise use STARTTLS on 587 / 25
-			secure: portNum === 465,
+			secure,
+			requireTLS,
 			auth: {
 				user: smtpUser,
 				pass: smtpPass,
@@ -95,17 +186,11 @@ export async function POST(request: Request): Promise<Response> {
 
 		// 6. Send the email
 		const info: SentMessageInfo = await transporter.sendMail({
-			from: `"${name.trim()}" <${trimmedEmail}>`,
+			from: `"${fromName}" <${from}>`,
 			to: contactRecipient,
-			replyTo: trimmedEmail,
-			subject: `New contact form submission from ${name.trim()}`,
-			text: `Name: ${name.trim()}\nEmail: ${trimmedEmail}\n\nMessage:\n${message.trim()}`,
-			html: `
-        <p><strong>Name:</strong> ${escapeHtml(name.trim())}</p>
-        <p><strong>Email:</strong> ${escapeHtml(trimmedEmail)}</p>
-        <p><strong>Message:</strong></p>
-        <p>${escapeHtml(message.trim()).replace(/\n/g, '<br/>')}</p>
-      `,
+			subject: `[${reason.trim()}] New contact form submission from ${name.trim()}`,
+			text: `Name: ${name.trim()}\nEmail: ${trimmedEmail}\nReason: ${reason.trim()}\n\nMessage:\n${message.trim()}`,
+			html: buildEmailTemplate(name.trim(), trimmedEmail, reason.trim(), message.trim()),
 		});
 
 		console.log(`Contact email sent: ${info.messageId}`);
