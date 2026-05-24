@@ -144,13 +144,33 @@ export default function ContactPage() {
 								e.currentTarget.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.2)';
 							}}
 						>
-							<option value="" disabled className="text-gray-500 bg-white">Select a reason</option>
-							<option value="General Inquiry" className="text-gray-900 bg-white">General Inquiry</option>
-							<option value="Product Demo / Sales" className="text-gray-900 bg-white">Product Demo / Sales</option>
-							<option value="Technical Support" className="text-gray-900 bg-white">Technical Support</option>
-							<option value="Partnership Opportunity" className="text-gray-900 bg-white">Partnership Opportunity</option>
-							<option value="Career / Hiring" className="text-gray-900 bg-white">Career / Hiring</option>
-							<option value="Other" className="text-gray-900 bg-white">Other</option>
+							<option value="" disabled className="text-gray-500 bg-white">
+								Select a reason
+							</option>
+							<option value="General Inquiry" className="text-gray-900 bg-white">
+								General Inquiry
+							</option>
+							<option value="Request a Demo" className="text-gray-900 bg-white">
+								Request a Demo
+							</option>
+							<option value="Integration & Onboarding" className="text-gray-900 bg-white">
+								Integration & Onboarding
+							</option>
+							<option value="Bug Report" className="text-gray-900 bg-white">
+								Bug Report
+							</option>
+							<option value="Feature Request / Feedback" className="text-gray-900 bg-white">
+								Feature Request / Feedback
+							</option>
+							<option value="Partnership Opportunity" className="text-gray-900 bg-white">
+								Partnership Opportunity
+							</option>
+							<option value="Career / Hiring" className="text-gray-900 bg-white">
+								Career / Hiring
+							</option>
+							<option value="Other" className="text-gray-900 bg-white">
+								Other
+							</option>
 						</select>
 						<svg className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 							<polyline points="6 9 12 15 18 9" />
@@ -160,8 +180,8 @@ export default function ContactPage() {
 
 					{status !== 'idle' && statusMsg && <div className={`text-sm font-inter-medium ${status === 'success' ? 'text-green-400' : status === 'error' ? 'text-red-400' : 'text-white'}`}>{statusMsg}</div>}
 
-					<div className="flex justify-end">
-						<button type="submit" disabled={status === 'loading'} className="rounded-xl px-8 py-2 font-inter-medium border transition-all flex items-center gap-1 bg-accent hover:bg-white/5 text-primary hover:text-white hover:border-white disabled:opacity-50">
+					<div className="flex justify-center md:justify-end">
+						<button type="submit" disabled={status === 'loading'} className="rounded-2xl px-10 py-4 font-inter-medium border transition-all flex items-center gap-1 bg-accent hover:bg-white/5 text-primary hover:text-white hover:border-white disabled:opacity-50">
 							{status === 'loading' ? 'Sending...' : 'Send Message'}
 						</button>
 					</div>
